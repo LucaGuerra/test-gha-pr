@@ -30,7 +30,7 @@ jobs:
           bucket_suffix = '' if latest else '-dev'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
-            print(f'latest={latest}', file=ofp)
+            print(f'latest={latest}'.lower(), file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
 
     outputs:
