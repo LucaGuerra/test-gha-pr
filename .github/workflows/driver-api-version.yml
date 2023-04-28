@@ -10,6 +10,7 @@ jobs:
     - name: heredoc bash script
       run: |
         cat > ~/sign <<EOF
+        #!/bin/bash
         echo "hello hello"
         echo "hello2"
         EOF
