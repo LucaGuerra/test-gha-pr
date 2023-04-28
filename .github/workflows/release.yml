@@ -22,12 +22,12 @@ jobs:
         shell: python
         run: |
           import os
-          prerelease = '-' in '${{ github.ref_name }}'
+          is_prerelease = '-' in '${{ github.ref_name }}'
 
           # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
-          is_latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not prerelease
+          is_latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not is_prerelease
 
-          bucket_suffix = '' if is_latest else '-dev'
+          bucket_suffix = '-dev' if is_prerelease else ''
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'is_latest={is_latest}'.lower(), file=ofp)
