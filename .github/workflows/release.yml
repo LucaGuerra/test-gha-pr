@@ -25,16 +25,16 @@ jobs:
           prerelease = '-' in '${{ github.ref_name }}'
 
           # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
-          latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not prerelease
+          is_latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not prerelease
 
-          bucket_suffix = '' if latest else '-dev'
+          bucket_suffix = '' if is_latest else '-dev'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
-            print(f'latest={latest}'.lower(), file=ofp)
+            print(f'is_latest={is_latest}'.lower(), file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
 
     outputs:
-      latest: ${{ steps.get_settings.outputs.latest }} 
+      is_latest: ${{ steps.get_settings.outputs.is_latest }} 
       bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
 
 
@@ -45,5 +45,10 @@ jobs:
     steps:
       - name: Print outputs
         run: |
-          echo "latest = ${{ needs.release-settings.outputs.latest }}"
+          echo "is_latest = ${{ needs.release-settings.outputs.is_latest }}"
           echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
+
+      - name: Run if latest
+        if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
+        run: echo "this is latest!"
+
