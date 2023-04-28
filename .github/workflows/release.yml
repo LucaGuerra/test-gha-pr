@@ -35,6 +35,9 @@ jobs:
   test-output:
     runs-on: ubuntu-latest
     needs: [release-settings]
-    run: |
-      echo "latest = ${{ needs.release-settings.outputs.latest }}"
-      echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
+
+    steps:
+      - name: Print outputs
+        run: |
+          echo "latest = ${{ needs.release-settings.outputs.latest }}"
+          echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
