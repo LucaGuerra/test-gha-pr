@@ -9,13 +9,13 @@ jobs:
   get-release-info:
     runs-on: ubuntu-latest
     steps:
-      - id: latest_release
-        name: Get latest release
-        uses: pozetroninc/github-action-get-latest-release@d1dafdb6e338bdab109e6afce581a01858680dfb
-        with:
-          repository: ${{ github.repository }}
-          excludes: prerelease, draft
+      - name: Get latest release
+        uses: rez0n/actions-github-release@v2.0
+        id: latest_release
+        env:
           token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          type: "stable"
 
       - name: Print outputs
         shell: python
