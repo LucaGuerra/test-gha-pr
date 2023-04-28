@@ -18,6 +18,7 @@ jobs:
           type: "stable"
 
       - name: Get settings for this release
+        id: get_settings
         shell: python
         run: |
           import os
@@ -31,7 +32,11 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'latest={latest}', file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
-            print('ohno=is_this_a_formatting_issue', file=ofp)
+
+      outputs:
+        latest: ${{ steps.get_settings.outputs.latest }} 
+        bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
+
 
   test-output:
     runs-on: ubuntu-latest
