@@ -13,7 +13,7 @@ jobs:
         #!/bin/bash
         echo "hello hello"
         echo "hello2"
-        spawn rpmsign --addsign {*}$argv
+        spawn rpmsign --addsign {*}\$argv
         EOF
         chmod +x ~/sign
         
