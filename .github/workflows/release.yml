@@ -6,7 +6,7 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+-*' # prerelease/RC
     
 jobs:
-  get-release-info:
+  release-settings:
     runs-on: ubuntu-latest
     steps:
       - name: Get latest release
@@ -17,9 +17,24 @@ jobs:
           repository: ${{ github.repository }}
           type: "stable"
 
-      - name: Print outputs
+      - name: Get settings for this release
         shell: python
         run: |
-          print("id: ${{ steps.latest_release.outputs.release }}")
+          import os
+          prerelease = '-' in '${{ github.ref_name }}'
 
+          # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
+          latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not prerelease
 
+          bucket_suffix = '' if latest else '-dev'
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
+            print(f'latest={latest}', file=ofp)
+            print(f'bucket_suffix={bucket_suffix}', file=ofp)
+
+  test-output:
+    runs-on: ubuntu-latest
+    needs: [release-settings]
+    run: |
+      echo "latest = ${{ needs.release-settings.outputs.latest }}"
+      echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
