@@ -17,4 +17,4 @@ jobs:
         EOF
         chmod +x ~/sign
         
-        ~/sign
+        cat ~/sign
