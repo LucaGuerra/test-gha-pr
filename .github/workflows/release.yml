@@ -31,6 +31,7 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'latest={latest}', file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
+            print('ohno=is_this_a_formatting_issue', file=ofp)
 
   test-output:
     runs-on: ubuntu-latest
