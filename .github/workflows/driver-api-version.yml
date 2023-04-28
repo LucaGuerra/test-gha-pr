@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: heredoc bash script
       run: |
-        cat > ~/sign \<<EOF
+        cat > ~/sign <<EOF
         echo "hello hello"
         echo "hello2"
         EOF
