@@ -1,0 +1,26 @@
+name: Find out things about my release
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'   # final release
+      - '[0-9]+.[0-9]+.[0-9]+-*' # prerelease/RC
+    
+jobs:
+  get-release-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release
+        id: latest_release
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          latest: true
+          doNotFailIfFound: true
+
+      - name: Print outputs
+        shell: python
+        run: |
+          print("id: ${{ steps.latest_release.outputs.id }}")
+
+
