@@ -33,9 +33,9 @@ jobs:
             print(f'latest={latest}', file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
 
-      outputs:
-        latest: ${{ steps.get_settings.outputs.latest }} 
-        bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
+    outputs:
+      latest: ${{ steps.get_settings.outputs.latest }} 
+      bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
 
 
   test-output:
