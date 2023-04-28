@@ -9,18 +9,17 @@ jobs:
   get-release-info:
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest release
-        id: latest_release
-        uses: cardinalby/git-get-release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - id: latest_release
+        name: Get latest release
+        uses: pozetroninc/github-action-get-latest-release@d1dafdb6e338bdab109e6afce581a01858680dfb
         with:
-          latest: true
-          doNotFailIfNotFound: true
+          repository: ${{ github.repository }}
+          excludes: prerelease, draft
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print outputs
         shell: python
         run: |
-          print("id: ${{ steps.latest_release.outputs.id }}")
+          print("id: ${{ steps.latest_release.outputs.release }}")
 
 
