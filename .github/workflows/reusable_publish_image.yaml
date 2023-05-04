@@ -1,0 +1,20 @@
+name: Create and publish container images
+
+on:
+  workflow_call:
+    inputs:
+      is_latest:
+        description: Update the latest tag with the new image
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish-images:
+    steps:
+      - name: "test 1"
+        run: echo "this is a test"
+      
+      - name: "test only if latest"
+        if: ${{ inputs.is_latest }}
+        run: echo "this needs to run only for latest"
