@@ -52,3 +52,9 @@ jobs:
         if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
         run: echo "this is latest!"
 
+  publish-images:
+    needs: [release-settings]
+    uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml
+    with:
+      is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
+    secrets: inherit
