@@ -54,7 +54,7 @@ jobs:
 
   publish-images:
     needs: [release-settings]
-    uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml
+    uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@main
     with:
       is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
     secrets: inherit
