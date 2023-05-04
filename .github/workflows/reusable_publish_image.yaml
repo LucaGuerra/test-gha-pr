@@ -11,6 +11,7 @@ on:
 
 jobs:
   publish-images:
+    runs-on: ubuntu-latest
     steps:
       - name: "test 1"
         run: echo "this is a test"
