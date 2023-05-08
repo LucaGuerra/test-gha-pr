@@ -48,6 +48,7 @@ jobs:
   test-output:
     runs-on: ubuntu-latest
     needs: [release-settings]
+    if: ${{ needs.release-settings.outputs.should_publish == 'true' }}
 
     steps:
       - name: Print outputs
@@ -61,7 +62,8 @@ jobs:
         run: echo "this is latest!"
 
   publish-images:
-    needs: [release-settings]
+    needs: [release-settings, test-output]
+    if: ${{ needs.release-settings.outputs.should_publish == 'true' }}
     uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@main
     with:
       is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
