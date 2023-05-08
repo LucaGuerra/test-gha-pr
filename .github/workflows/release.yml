@@ -22,10 +22,10 @@ jobs:
           import os
           import re
 
-          semver_no_meta = pattern = '''^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$'''
+          semver_no_meta = '''^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$'''
           tag_name = '${{ github.event.release.tag_name }}'
 
-          should_publish = re.match(pattern, tag_name) is not None
+          should_publish = re.match(semver_no_meta, tag_name) is not None
 
           is_prerelease = '-' in tag_name
 
@@ -42,6 +42,7 @@ jobs:
     outputs:
       is_latest: ${{ steps.get_settings.outputs.is_latest }} 
       bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
+      should_publish: ${{ steps.get_settings.outputs.should_publish }}
 
 
   test-output:
@@ -53,6 +54,7 @@ jobs:
         run: |
           echo "is_latest = ${{ needs.release-settings.outputs.is_latest }}"
           echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
+          echo "should_publish = ${{ needs.release-settings.outputs.should_publish }}"
 
       - name: Run if latest
         if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
