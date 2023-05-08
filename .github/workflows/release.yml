@@ -1,9 +1,7 @@
 name: Find out things about my release
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'   # final release
-      - '[0-9]+.[0-9]+.[0-9]+-*' # prerelease/RC
+  release:
+    types: [published]
     
 jobs:
   release-settings:
@@ -22,7 +20,14 @@ jobs:
         shell: python
         run: |
           import os
-          is_prerelease = '-' in '${{ github.ref_name }}'
+          import re
+
+          semver_no_meta = pattern = '''^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$'''
+          tag_name = '${{ github.event.release.tag_name }}'
+
+          should_publish = re.match(pattern, tag_name) is not None
+
+          is_prerelease = '-' in tag_name
 
           # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
           is_latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not is_prerelease
@@ -31,6 +36,7 @@ jobs:
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'is_latest={is_latest}'.lower(), file=ofp)
+            print(f'should_publish={should_publish}'.lower(), file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
 
     outputs:
