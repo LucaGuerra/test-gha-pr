@@ -6,6 +6,9 @@ on:
 jobs:
   release-settings:
     runs-on: ubuntu-latest
+    outputs:
+      is_latest: ${{ steps.get_settings.outputs.is_latest }} 
+      bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
     steps:
       - name: Get latest release
         uses: rez0n/actions-github-release@v2.0
@@ -21,41 +24,35 @@ jobs:
         run: |
           import os
           import re
+          import sys
 
           semver_no_meta = '''^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$'''
           tag_name = '${{ github.event.release.tag_name }}'
 
-          should_publish = re.match(semver_no_meta, tag_name) is not None
+          is_valid_version = re.match(semver_no_meta, tag_name) is not None
+          if not is_valid_version:
+            print(f'Release version {tag_name} is not a valid full or pre-release. See RELEASE.md for more information.')
+            sys.exit(1)
 
           is_prerelease = '-' in tag_name
 
           # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
-          is_latest = '${{ steps.latest_release.outputs.release }}' == '${{ github.ref_name }}' and not is_prerelease
+          is_latest = '${{ steps.latest_release.outputs.release }}' == tag_name and not is_prerelease
 
           bucket_suffix = '-dev' if is_prerelease else ''
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'is_latest={is_latest}'.lower(), file=ofp)
-            print(f'should_publish={should_publish}'.lower(), file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
-
-    outputs:
-      is_latest: ${{ steps.get_settings.outputs.is_latest }} 
-      bucket_suffix: ${{ steps.get_settings.outputs.bucket_suffix }}
-      should_publish: ${{ steps.get_settings.outputs.should_publish }}
-
 
   test-output:
     runs-on: ubuntu-latest
     needs: [release-settings]
-    if: ${{ needs.release-settings.outputs.should_publish == 'true' }}
-
     steps:
       - name: Print outputs
         run: |
           echo "is_latest = ${{ needs.release-settings.outputs.is_latest }}"
           echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
-          echo "should_publish = ${{ needs.release-settings.outputs.should_publish }}"
 
       - name: Run if latest
         if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
@@ -63,7 +60,6 @@ jobs:
 
   publish-images:
     needs: [release-settings, test-output]
-    if: ${{ needs.release-settings.outputs.should_publish == 'true' }}
     uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@main
     with:
       is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
