@@ -63,4 +63,5 @@ jobs:
     uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@main
     with:
       is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
+      version: ${{ github.event.release.tag_name }}
     secrets: inherit

@@ -8,6 +8,10 @@ on:
         required: false
         type: boolean
         default: false
+      version:
+        description: The version
+        required: true
+        type: string
 
 jobs:
   publish-images:
@@ -19,3 +23,38 @@ jobs:
       - name: "test only if latest"
         if: ${{ inputs.is_latest }}
         run: echo "this needs to run only for latest"
+
+      - name: Build image x86_64
+        uses: docker/build-push-action@v3
+        with:
+          build-args: |
+            VERSION=${{ inputs.version }}
+          tags: |
+            docker.io/lucagsd/test-gha-pr:x86_64-${{ inputs.version }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64'
+
+      - name: Build image arm64
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/arm64
+          build-args: |
+            VERSION=${{ inputs.version }}
+          tags: |
+            docker.io/lucagsd/test-gha-pr:aarch64-${{ inputs.version }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_SECRET }}
+
+      - name: Create and push manifest
+        uses: Noelware/docker-manifest-action@0.3.1
+        with:
+          inputs: docker.io/lucagsd/test-gha-pr:${{ inputs.version }}
+          images: docker.io/lucagsd/test-gha-pr:aarch64-${{ inputs.version }},docker.io/lucagsd/test-gha-pr:x86_64-${{ inputs.version }}
+          push: true
