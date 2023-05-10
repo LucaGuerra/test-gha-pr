@@ -45,21 +45,21 @@ jobs:
             print(f'is_latest={is_latest}'.lower(), file=ofp)
             print(f'bucket_suffix={bucket_suffix}', file=ofp)
 
-  test-output:
-    runs-on: ubuntu-latest
-    needs: [release-settings]
-    steps:
-      - name: Print outputs
-        run: |
-          echo "is_latest = ${{ needs.release-settings.outputs.is_latest }}"
-          echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
+  # test-output:
+  #   runs-on: ubuntu-latest
+  #   needs: [release-settings]
+  #   steps:
+  #     - name: Print outputs
+  #       run: |
+  #         echo "is_latest = ${{ needs.release-settings.outputs.is_latest }}"
+  #         echo "bucket_suffix = ${{ needs.release-settings.outputs.bucket_suffix }}"
 
-      - name: Run if latest
-        if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
-        run: echo "this is latest!"
+  #     - name: Run if latest
+  #       if: ${{ needs.release-settings.outputs.is_latest == 'true' }}
+  #       run: echo "this is latest!"
 
   publish-images:
-    needs: [release-settings, test-output]
+    needs: [release-settings]
     uses: LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@main
     with:
       is_latest: ${{ needs.release-settings.outputs.is_latest == 'true' }}
