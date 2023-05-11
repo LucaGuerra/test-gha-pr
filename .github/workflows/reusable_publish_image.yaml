@@ -99,4 +99,4 @@ jobs:
       - name: Sign image with cosign
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign --yes lucagsd/test-gha-pr@${{ steps.get_digest.image_digest }}
+        run: cosign sign --yes lucagsd/test-gha-pr@${{ steps.get_digest.outputs.image_digest }}
