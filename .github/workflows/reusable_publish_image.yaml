@@ -57,6 +57,11 @@ jobs:
         with:
           version: v0.15.1
 
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@main
+        with:
+          cosign-release: v2.0.2
+
       - name: Push images to Docker Hub
         run: |
           docker push lucagsd/test-gha-pr:aarch64-${{ inputs.version }}
@@ -69,7 +74,24 @@ jobs:
           images: lucagsd/test-gha-pr:aarch64-${{ inputs.version }},lucagsd/test-gha-pr:x86_64-${{ inputs.version }}
           push: true
 
-      - name: Tag latest if necessary
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: lucaguerra
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag latest
         if: inputs.is_latest
         run: |
           crane tag lucagsd/test-gha-pr:${{ inputs.version }} latest
+
+      - name: Get digest
+        id: get_digest
+        run: |
+          echo "image_digest=$(crane digest lucagsd/test-gha-pr:${{ inputs.version }})" >> $GITHUB_OUTPUT
+
+      - name: Sign image with cosign
+        env:
+          COSIGN_EXPERIMENTAL: "true"
+        run: cosign sign --yes lucagsd/test-gha-pr@${{ steps.get_digest.image_digest }}
