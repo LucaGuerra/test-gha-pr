@@ -86,17 +86,26 @@ jobs:
           username: lucaguerra
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Tag latest
-        if: inputs.is_latest
-        run: |
-          crane tag lucagsd/test-gha-pr:${{ inputs.version }} latest
-
       - name: Get digest
         id: get_digest
         run: |
           echo "image_digest=$(crane digest lucagsd/test-gha-pr:${{ inputs.version }})" >> $GITHUB_OUTPUT
 
+      - name: Push to GHCR
+        run: |
+          crane copy lucagsd/test-gha-pr:${{ inputs.version }} ghcr.io/lucaguerra/test-gha-pr:${{ inputs.version }}
+
+      - name: Tag latest
+        if: inputs.is_latest
+        run: |
+          crane tag lucagsd/test-gha-pr:${{ inputs.version }} latest
+          crane tag ghcr.io/lucaguerra/test-gha-pr:${{ inputs.version }} latest
+
+      # verify with
+      # cosign verify docker.io/lucagsd/test-gha-pr:latest --certificate-oidc-issuer=https://token.actions.githubusercontent.com --certificate-identity=https://github.com/LucaGuerra/test-gha-pr/.github/workflows/reusable_publish_image.yaml@refs/heads/main
       - name: Sign image with cosign
         env:
           COSIGN_EXPERIMENTAL: "true"
-        run: cosign sign --yes lucagsd/test-gha-pr@${{ steps.get_digest.outputs.image_digest }}
+        run: |
+          cosign sign --yes lucagsd/test-gha-pr@${{ steps.get_digest.outputs.image_digest }}
+          cosign sign --yes ghcr.io/lucaguerra/test-gha-pr@${{ steps.get_digest.outputs.image_digest }}
