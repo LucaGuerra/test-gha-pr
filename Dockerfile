@@ -1,6 +1,6 @@
-ARG VERSION=no-version
-
 FROM alpine:latest
+
+ARG VERSION=no-version
 
 RUN echo $VERSION > /version
 

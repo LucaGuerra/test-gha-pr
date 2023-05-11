@@ -68,3 +68,8 @@ jobs:
           inputs: lucagsd/test-gha-pr:${{ inputs.version }}
           images: lucagsd/test-gha-pr:aarch64-${{ inputs.version }},lucagsd/test-gha-pr:x86_64-${{ inputs.version }}
           push: true
+
+      - name: Tag latest if necessary
+        if: inputs.is_latest
+        run: |
+          crane tag lucagsd/test-gha-pr:${{ inputs.version }} latest
