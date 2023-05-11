@@ -77,6 +77,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_SECRET }}
 
+      - name: Setup Crane
+        uses: imjasonh/setup-crane@v0.3
+        with:
+          version: v0.15.1
+
+      - name: Push images to Docker Hub
+        run: |
+          docker push lucagsd/test-gha-pr:aarch64-${{ inputs.version }}
+          docker push lucagsd/test-gha-pr:x86_64-${{ inputs.version }}
+
       - name: Create and push manifest
         uses: Noelware/docker-manifest-action@0.3.1
         with:
